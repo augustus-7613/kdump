@@ -52,7 +52,15 @@ static void print_indent(const int level)
 static void print_kv_int(const int level, const char *label, const long value)
 {
     print_indent(level);
-    printf("%s: %ld\n", label, value);
+    if (strcasecmp(label, "enctype") == 0)
+    {
+        if (value == ENCTYPE_AES128_CTS_HMAC_SHA1_96) printf("%s: %ld (aes128-cts-hmac-sha1-96)\n", label, value);
+        else if (value == ENCTYPE_AES256_CTS_HMAC_SHA1_96) printf("%s: %ld (aes256-cts-hmac-sha1-96)\n", label, value);
+        else if (value == ENCTYPE_ARCFOUR_HMAC) printf("%s: %ld (arcfour-hmac)\n", label, value);
+        else printf("%s: %ld (unknown)\n", label, value);
+    }
+    else
+        printf("%s: %ld\n", label, value);
 }
 
 static void print_kv_str(const int level, const char *label, const char* value, const unsigned int value_len)
@@ -89,18 +97,18 @@ void print_krb5_ticket(const int level, const krb5_ticket* tkt)
 
     print_indent(level+1); printf("Server: \n");
     if (args.verbose & PRINT_VERBOSE) print_kv_int(level+2, "Magic", tkt->server->magic);
-    print_kv_int(level+2, "Length", tkt->server->length);
+    if (args.verbose & PRINT_VERBOSE) print_kv_int(level+2, "Length", tkt->server->length);
     print_kv_int(level+2, "Type", tkt->server->type);
 
     print_indent(level+2); printf("Realm: \n");
     if (args.verbose & PRINT_VERBOSE) print_kv_int(level+3, "Magic", tkt->server->realm.magic);
-    print_kv_int(level+3, "Length", tkt->server->realm.length);
+    if (args.verbose & PRINT_VERBOSE) print_kv_int(level+3, "Length", tkt->server->realm.length);
     print_kv_str(level+3, "Data", tkt->server->realm.data, tkt->server->realm.length);
 
     for (i = 0; i < tkt->server->length; i++) {
         print_indent(level+2); printf("Data[%d]: \n", i);
         if (args.verbose & PRINT_VERBOSE) print_kv_int(level+3, "Magic", tkt->server->data[i].magic);
-        print_kv_int(level+3, "Length", tkt->server->data[i].length);
+        if (args.verbose & PRINT_VERBOSE) print_kv_int(level+3, "Length", tkt->server->data[i].length);
         print_kv_str(level+3, "Data", tkt->server->data[i].data, tkt->server->data[i].length);
     }
 
@@ -111,7 +119,7 @@ void print_krb5_ticket(const int level, const krb5_ticket* tkt)
 
     print_indent(level+2); printf("Ciphertext: \n");
     if (args.verbose & PRINT_VERBOSE) print_kv_int(level+3, "Magic", tkt->enc_part.ciphertext.magic);
-    print_kv_int(level+3, "Length", tkt->enc_part.ciphertext.length);
+    if (args.verbose & PRINT_VERBOSE) print_kv_int(level+3, "Length", tkt->enc_part.ciphertext.length);
     print_kv_bytes(level+3, "Data", tkt->enc_part.ciphertext.data, tkt->enc_part.ciphertext.length);
     if (args.hashcat)
     {
@@ -148,27 +156,27 @@ void print_krb5_ticket(const int level, const krb5_ticket* tkt)
 
     print_indent(level+2); printf("Client: \n");
     if (args.verbose & PRINT_VERBOSE) print_kv_int(level+3, "Magic", tkt->enc_part2->client->magic);
+    if (args.verbose & PRINT_VERBOSE) print_kv_int(level+3, "Length", tkt->enc_part2->client->length);
     print_kv_int(level+3, "Type", tkt->enc_part2->client->type);
-    print_kv_int(level+3, "Length", tkt->enc_part2->client->length);
 
     for (i = 0; i < tkt->enc_part2->client->length; i++) {
         print_indent(level+3); printf("Data[%d]: \n", i);
         if (args.verbose & PRINT_VERBOSE) print_kv_int(level+4, "Magic", tkt->enc_part2->client->data[i].magic);
-        print_kv_int(level+4, "Length", tkt->enc_part2->client->data[i].length);
+        if (args.verbose & PRINT_VERBOSE) print_kv_int(level+4, "Length", tkt->enc_part2->client->data[i].length);
         print_kv_str(level+4, "Data", tkt->enc_part2->client->data[i].data, tkt->enc_part2->client->data[i].length);
     }
 
     print_indent(level+3); printf("Realm: \n");
     if (args.verbose & PRINT_VERBOSE) print_kv_int(level+4, "Magic", tkt->enc_part2->client->realm.magic);
-    print_kv_int(level+4, "Length", tkt->enc_part2->client->realm.length);
+    if (args.verbose & PRINT_VERBOSE) print_kv_int(level+4, "Length", tkt->enc_part2->client->realm.length);
     print_kv_str(level+4, "Data", tkt->enc_part2->client->realm.data, tkt->enc_part2->client->realm.length);
 
     krb5_authdata** authdata = NULL;
     for (i = 0, authdata = tkt->enc_part2->authorization_data; *authdata != NULL; authdata++, i++) {
         print_indent(level+2); printf("Authorization Data[%d]: \n", i);
         if (args.verbose & PRINT_VERBOSE) print_kv_int(level+3, "Magic", (*authdata)->magic);
+        if (args.verbose & PRINT_VERBOSE) print_kv_int(level+3, "Length", (*authdata)->length);
         print_kv_int(level+3, "AD_type", (*authdata)->ad_type);
-        print_kv_int(level+3, "Length", (*authdata)->length);
         print_kv_str(level+3, "Contents", (*authdata)->contents, (*authdata)->length);
     }
 
@@ -176,15 +184,15 @@ void print_krb5_ticket(const int level, const krb5_ticket* tkt)
     for (i = 0, addresses = tkt->enc_part2->caddrs; *addresses != NULL; addresses++, i++) {
         print_indent(level+2); printf("CAddrs[%d]: \n", i);
         if (args.verbose & PRINT_VERBOSE) print_kv_int(level+3, "Magic", (*addresses)->magic);
+        if (args.verbose & PRINT_VERBOSE) print_kv_int(level+3, "Length", (*addresses)->length);
         print_kv_int(level+3, "AddrType", (*addresses)->addrtype);
-        print_kv_int(level+3, "Length", (*addresses)->length);
         print_kv_str(level+3, "Contents", (*addresses)->contents, (*addresses)->length);
     }
 
     print_indent(level+2); printf("Session: \n");
     if (args.verbose & PRINT_VERBOSE) print_kv_int(level+3, "Magic", tkt->enc_part2->session->magic);
+    if (args.verbose & PRINT_VERBOSE) print_kv_int(level+3, "Length", tkt->enc_part2->session->length);
     print_kv_int(level+3, "Enctype", tkt->enc_part2->session->enctype);
-    print_kv_int(level+3, "Length", tkt->enc_part2->session->length);
     print_kv_str(level+3, "Contents", tkt->enc_part2->session->contents, tkt->enc_part2->session->length);
 
     print_indent(level+2); printf("Times: \n");
@@ -234,7 +242,7 @@ void print_krb5_cred(const krb5_context ctx, const krb5_creds* creds, const krb5
         print_indent(0); printf("[AuthData[%d]]\n", i);
         if (args.verbose & PRINT_VERBOSE) print_kv_int(2, "Magic", creds->authdata[i]->magic);
         print_kv_int(1, "AdType", creds->authdata[i]->ad_type);
-        print_kv_int(1, "Length", creds->authdata[i]->length);
+        if (args.verbose & PRINT_VERBOSE) print_kv_int(1, "Length", creds->authdata[i]->length);
         print_kv_str(1, "Contents", creds->authdata[i]->contents, creds->authdata[0]->length);
     }
 
@@ -244,40 +252,40 @@ void print_krb5_cred(const krb5_context ctx, const krb5_creds* creds, const krb5
         print_indent(0); printf("[Addresses[%d]]\n", i);
         if (args.verbose & PRINT_VERBOSE) print_kv_int(1, "Magic", creds->addresses[i]->magic);
         print_kv_int(1, "AddrType", creds->addresses[i]->addrtype);
-        print_kv_int(1, "length", creds->addresses[i]->length);
+        if (args.verbose & PRINT_VERBOSE) print_kv_int(1, "length", creds->addresses[i]->length);
         print_kv_str(1, "Contents", creds->addresses[i]->contents, creds->addresses[0]->length);
     }
 
     print_indent(0); printf("\n[Client]\n");
     if (args.verbose & PRINT_VERBOSE) print_kv_int(1, "Magic", creds->client->magic);
-    print_kv_int(1, "Length", creds->client->length);
+    if (args.verbose & PRINT_VERBOSE) print_kv_int(1, "Length", creds->client->length);
     print_kv_int(1, "Type", creds->client->type);
 
     print_indent(1); printf("Realm:\n");
     if (args.verbose & PRINT_VERBOSE) print_kv_int(2, "Magic", creds->client->realm.magic);
-    print_kv_int(2, "Length", creds->client->realm.length);
+    if (args.verbose & PRINT_VERBOSE) print_kv_int(2, "Length", creds->client->realm.length);
     print_kv_str(2, "Data", creds->client->realm.data, creds->client->realm.length);
 
     print_indent(1); printf("Data: \n");
     if (args.verbose & PRINT_VERBOSE) print_kv_int(2, "Magic", creds->client->data->magic);
-    print_kv_int(2, "Length", creds->client->data->length);
+    if (args.verbose & PRINT_VERBOSE) print_kv_int(2, "Length", creds->client->data->length);
     print_kv_str(2, "Data", creds->client->data->data, creds->client->data->length);
 
     print_indent(0); printf("\n[Server]\n");
     if (args.verbose & PRINT_VERBOSE) print_kv_int(1, "Magic", creds->server->magic);
-    print_kv_int(1, "Length", creds->server->length);
+    if (args.verbose & PRINT_VERBOSE) print_kv_int(1, "Length", creds->server->length);
     print_kv_int(1, "Type", creds->server->type);
 
     print_indent(1); printf("Realm: \n");
     if (args.verbose & PRINT_VERBOSE) print_kv_int(2, "Magic", creds->server->realm.magic);
-    print_kv_int(2, "Length", creds->server->realm.length);
+    if (args.verbose & PRINT_VERBOSE) print_kv_int(2, "Length", creds->server->realm.length);
     print_kv_str(2, "Data", creds->server->realm.data, creds->server->realm.length);
 
     for (i=0; i<creds->server->length; i++)
     {
         print_indent(1); printf("Data[%d]: \n", i);
         if (args.verbose & PRINT_VERBOSE) print_kv_int(2, "Magic", creds->server->data[i].magic);
-        print_kv_int(2, "Length", creds->server->data[i].length);
+        if (args.verbose & PRINT_VERBOSE) print_kv_int(2, "Length", creds->server->data[i].length);
         print_kv_str(2, "Data", creds->server->data[i].data, creds->server->data[i].length);
     }
 
@@ -289,13 +297,13 @@ void print_krb5_cred(const krb5_context ctx, const krb5_creds* creds, const krb5
 
     print_indent(0); printf("\n[KeyBlock]\n");
     if (args.verbose & PRINT_VERBOSE) print_kv_int(1, "Magic", creds->keyblock.magic);
+    if (args.verbose & PRINT_VERBOSE) print_kv_int(1, "Length", creds->keyblock.length);
     print_kv_int(1, "EncType", creds->keyblock.enctype);
-    print_kv_int(1, "length", creds->keyblock.length);
     print_kv_bytes(1, "Contents", creds->keyblock.contents, creds->keyblock.length);
 
     print_indent(0); printf("\n[SecondTicket]\n");
     if (args.verbose & PRINT_VERBOSE) print_kv_int(1, "Magic", creds->second_ticket.magic);
-    print_kv_int(1, "Length", creds->second_ticket.length);
+    if (args.verbose & PRINT_VERBOSE) print_kv_int(1, "Length", creds->second_ticket.length);
     print_kv_bytes(1, "Data", creds->second_ticket.data, creds->second_ticket.length);
 
     if (tkt != NULL)
