@@ -11,5 +11,5 @@ Usage: kdump [-h] [-c] [-v] [-H]
 	-h help menu
 	-c specifies credential cache
 	-v verbose
-	-H prints TGS in hashcat format
+	-H prints encrypted part of TGS in hashcat format
 ```
