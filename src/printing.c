@@ -144,14 +144,14 @@ void print_krb5_ticket(const int level, const krb5_ticket* tkt)
     if (args.hashcat)
     {
         char* service = tkt->server->data[0].data;
-        service[tkt->server->data[0].length] = '\0';
+        service[tkt->server->data[0].length-1] = '\0';
         char* realm = tkt->server->realm.data;
-        realm[tkt->server->realm.length] = '\0';
+        realm[tkt->server->realm.length-1] = '\0';
         char* host = "HOSTNAME";
         if (tkt->server->length > 1)
         {
             host = tkt->server->data[1].data;
-            host[tkt->server->data[1].length] = '\0';
+            host[tkt->server->data[1].length-1] = '\0';
         }
 
         print_indent(level+3); printf("Hashcat format: ");
