@@ -9,6 +9,8 @@
 #include "src/types.h"
 #include "src/utils.h"
 
+args_t args = {0};
+
 int main(int argc, char** argv)
 {
     krb5_context ctx = {0};
@@ -19,7 +21,6 @@ int main(int argc, char** argv)
     krb5_ticket *ticket = NULL;
     const char *msg = NULL;
     int opt = 0;
-    args_t args = {0};
     const char* base = basename(argv[0]);
 
     while ((opt = getopt(argc, argv, "Hc:vh")) != -1)
@@ -65,7 +66,7 @@ int main(int argc, char** argv)
 
     if ((ret = krb5_cc_start_seq_get(ctx, ccache, &cursor)) != 0) goto error;
 
-    krb5_cc_next_cred(ctx, ccache, &cursor, &creds); // skip the first "fake" entry
+    if (args.verbose != PRINT_VERBOSE) krb5_cc_next_cred(ctx, ccache, &cursor, &creds); // skips the first "fake" entry
     while (krb5_cc_next_cred(ctx, ccache, &cursor, &creds) == 0)
     {
         if (creds.ticket.data == NULL || creds.ticket.length == 0) continue;
@@ -78,7 +79,7 @@ int main(int argc, char** argv)
             ticket = NULL;
         }
 
-        print_krb5_cred(&creds, ticket, &args);
+        print_krb5_cred(ctx, &creds, ticket);
 
         krb5_free_ticket(ctx, ticket);
         krb5_free_cred_contents(ctx, &creds);

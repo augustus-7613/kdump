@@ -12,3 +12,5 @@ typedef struct
     char* ccache;
     uint8_t verbose;
 } args_t;
+
+extern args_t args;
