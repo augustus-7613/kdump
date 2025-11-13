@@ -33,7 +33,7 @@ int main(int argc, char** argv)
                 args.ccache = optarg;
                 break;
             case 'v':
-                args.verbose = 1;
+                args.verbose = PRINT_VERBOSE;
                 break;
             case 'h':
                 usage(base);
