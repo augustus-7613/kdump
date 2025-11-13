@@ -2,7 +2,7 @@
 
 #include "types.h"
 
-static void print_hashcat_format(const int enctype, char* username, char* realm, char* service, const unsigned char* enc_part, const size_t enc_part_len);
+void print_hashcat_format(const int enctype, const char* service, const char* realm, const char* host, const unsigned char* enc_part, const size_t enc_part_len);
 static void print_indent(const int level);
 static void print_kv_int(const level, const char *label, const long value);
 static void print_kv_str(const int level, const char *label, const char* value, const unsigned int value_len);

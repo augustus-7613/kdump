@@ -19,18 +19,26 @@ void print_kv_time(const int level, const char *label, const long value)
         print_kv_int(level, label, value);
 }
 
-void print_hashcat_format(const int enctype, char* username, char* realm, char* service, const unsigned char* enc_part, const size_t enc_part_len) {
+void print_hashcat_format(const int enctype, const char* service, const char* realm, const char* host, const unsigned char* enc_part, const size_t enc_part_len) {
     if (enctype == ENCTYPE_AES256_CTS_HMAC_SHA1_96 || enctype == ENCTYPE_AES128_CTS_HMAC_SHA1_96)
-        printf("$krb5tgs$%d$%s$%s$", enctype, username, realm);
+        printf("$krb5tgs$%d$<SVC-USERNAME>$%s$", enctype, realm);
     else if (enctype == ENCTYPE_ARCFOUR_HMAC )
-        printf("$krb5tgs$%d$*%s$%s$%s/%s*$", enctype, username, realm, service, username);
+        printf("$krb5tgs$%d$*<SVC-USERNAME>$%s$%s/%s*$", enctype, realm, service, host);
 
     size_t i;
-    for (i = 0; i < enc_part_len; i++)
+    if (enctype == ENCTYPE_AES256_CTS_HMAC_SHA1_96 || enctype == ENCTYPE_AES128_CTS_HMAC_SHA1_96)
+    {	    
+	    for (i=enc_part_len-12; i < enc_part_len; i++) printf("%02x", enc_part[i]&0xff);
+	    putchar('$');
+        for (i = 0; i < enc_part_len-12; i++) printf("%02x", enc_part[i]&0xff);
+    }
+    else if (enctype == ENCTYPE_ARCFOUR_HMAC)
     {
-        if ( (enctype == ENCTYPE_AES256_CTS_HMAC_SHA1_96 || enctype == ENCTYPE_AES128_CTS_HMAC_SHA1_96) && i == 12) putchar('$');
-        if ( enctype == ENCTYPE_ARCFOUR_HMAC && i == 16) putchar('$');
-        printf("%02x", enc_part[i]&0xff);
+	    for (i = 0; i < enc_part_len; i++)
+	    {
+		    if (i == 16) putchar('$');
+		    printf("%02x", enc_part[i]&0xff);
+	    }
     }
     putchar('\n');
 }
@@ -164,19 +172,23 @@ void print_krb5_ticket(const int level, const krb5_ticket* tkt, const args_t* ar
 after_enc_part2:
     if (args->hashcat)
     {
-        char* username = tkt->server->data[0].data;
-        username[tkt->server->data[0].length] = '\0';
-        // char* service = tkt->server->data[0].data;
-        // service[tkt->server->data[0].length] = '\0';
+        char* service = tkt->server->data[0].data;
+        service[tkt->server->data[0].length] = '\0';
         char* realm = tkt->server->realm.data;
         realm[tkt->server->realm.length] = '\0';
+	    char* host = "HOSTNAME";
+	    if (tkt->server->length > 1)
+	    {
+	        host = tkt->server->data[1].data;
+                host[tkt->server->data[1].length] = '\0';
+	    }
 
         print_indent(level+1); printf("Hashcat format: ");
         print_hashcat_format(
             tkt->enc_part.enctype,
-            username,
+            service,
             realm,
-            username,
+            host,
             tkt->enc_part.ciphertext.data,
             tkt->enc_part.ciphertext.length
         );
