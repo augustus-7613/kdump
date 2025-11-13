@@ -9,7 +9,7 @@
 void print_kv_time(const int level, const char *label, const long value)
 {
     char buf[32] = {0};
-    struct tm *tm_info = NULL;
+    const struct tm *tm_info = NULL;
     if ((tm_info = localtime(&value)) != NULL)
     {
         strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", tm_info);
@@ -113,11 +113,33 @@ void print_krb5_ticket(const int level, const krb5_ticket* tkt)
     if (args.verbose & PRINT_VERBOSE) print_kv_int(level+3, "Magic", tkt->enc_part.ciphertext.magic);
     print_kv_int(level+3, "Length", tkt->enc_part.ciphertext.length);
     print_kv_bytes(level+3, "Data", tkt->enc_part.ciphertext.data, tkt->enc_part.ciphertext.length);
+    if (args.hashcat)
+    {
+        char* service = tkt->server->data[0].data;
+        service[tkt->server->data[0].length] = '\0';
+        char* realm = tkt->server->realm.data;
+        realm[tkt->server->realm.length] = '\0';
+        char* host = "HOSTNAME";
+        if (tkt->server->length > 1)
+        {
+            host = tkt->server->data[1].data;
+            host[tkt->server->data[1].length] = '\0';
+        }
 
+        print_indent(level+3); printf("Hashcat format: ");
+        print_hashcat_format(
+            tkt->enc_part.enctype,
+            service,
+            realm,
+            host,
+            tkt->enc_part.ciphertext.data,
+            tkt->enc_part.ciphertext.length
+        );
+    }
 
     if (tkt->enc_part2 == NULL) {
         print_indent(level+1); printf("Enc_part2: (nil)\n");
-        goto after_enc_part2;
+        return;
     }
 
     print_indent(level+1); printf("Enc_part2: \n");
@@ -176,31 +198,6 @@ void print_krb5_ticket(const int level, const krb5_ticket* tkt)
     print_kv_int(level+3, "TrType", tkt->enc_part2->transited.tr_type);
     print_kv_int(level+3, "TrType", tkt->enc_part2->transited.tr_contents.length);
     print_kv_str(level+3, "Contents", tkt->enc_part2->transited.tr_contents.data, tkt->enc_part2->transited.tr_contents.length);
-
-after_enc_part2:
-    if (args.hashcat)
-    {
-        char* service = tkt->server->data[0].data;
-        service[tkt->server->data[0].length] = '\0';
-        char* realm = tkt->server->realm.data;
-        realm[tkt->server->realm.length] = '\0';
-	    char* host = "HOSTNAME";
-	    if (tkt->server->length > 1)
-	    {
-	        host = tkt->server->data[1].data;
-                host[tkt->server->data[1].length] = '\0';
-	    }
-
-        print_indent(level+1); printf("Hashcat format: ");
-        print_hashcat_format(
-            tkt->enc_part.enctype,
-            service,
-            realm,
-            host,
-            tkt->enc_part.ciphertext.data,
-            tkt->enc_part.ciphertext.length
-        );
-    }
 }
 
 void print_krb5_cred(const krb5_context ctx, const krb5_creds* creds, const krb5_ticket* tkt)
