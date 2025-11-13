@@ -59,6 +59,25 @@ static void print_kv_int(const int level, const char *label, const long value)
         else if (value == ENCTYPE_ARCFOUR_HMAC) printf("%s: %ld (arcfour-hmac)\n", label, value);
         else printf("%s: %ld (unknown)\n", label, value);
     }
+    else if (strcasecmp(label, "ticketflags") == 0)
+    {
+        printf("%s: %ld (", label, value);
+        if (value & TKT_FLG_FORWARDABLE) printf(" TKT_FLG_FORWARDABLE ");
+        if (value & TKT_FLG_FORWARDED) printf(" TKT_FLG_FORWARDED ");
+        if (value & TKT_FLG_PROXIABLE) printf(" TKT_FLG_PROXIABLE ");
+        if (value & TKT_FLG_PROXY) printf(" TKT_FLG_PROXY ");
+        if (value & TKT_FLG_MAY_POSTDATE) printf(" TKT_FLG_MAY_POSTDATE ");
+        if (value & TKT_FLG_POSTDATED) printf(" TKT_FLG_POSTDATED ");
+        if (value & TKT_FLG_INVALID) printf(" TKT_FLG_INVALID ");
+        if (value & TKT_FLG_RENEWABLE) printf(" TKT_FLG_RENEWABLE ");
+        if (value & TKT_FLG_INITIAL) printf(" TKT_FLG_INITIAL ");
+        if (value & TKT_FLG_HW_AUTH) printf(" TKT_FLG_HW_AUTH ");
+        if (value & TKT_FLG_PRE_AUTH) printf(" TKT_FLG_PRE_AUTH ");
+        if (value & TKT_FLG_TRANSIT_POLICY_CHECKED) printf(" TKT_FLG_TRANSIT_POLICY_CHECKED ");
+        if (value & TKT_FLG_OK_AS_DELEGATE) printf(" TKT_FLG_OK_AS_DELEGATE ");
+        if (value & TKT_FLG_ANONYMOUS) printf(" TKT_FLG_ANONYMOUS ");
+        putchar(')');
+    }
     else
         printf("%s: %ld\n", label, value);
 }
