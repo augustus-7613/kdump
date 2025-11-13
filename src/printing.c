@@ -10,9 +10,9 @@ void print_kv_time(const int level, const char *label, const long value)
 {
     char buf[32] = {0};
     const struct tm *tm_info = NULL;
-    if ((tm_info = localtime(&value)) != NULL)
+    if ((tm_info = gmtime(&value)) != NULL)
     {
-        strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", tm_info);
+        strftime(buf, sizeof(buf), "%Y-%m-%dT%H:%M:%SZ", tm_info);
         print_kv_str(level, label, buf, strlen(buf));
     }
     else
