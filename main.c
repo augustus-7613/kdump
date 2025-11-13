@@ -48,7 +48,17 @@ int main(int argc, char** argv)
 
     if (args.ccache == NULL)
     {
-        if ((ret = krb5_cc_default(ctx, &ccache)) != 0) goto error;
+        const char* env_ccname = getenv("KRB5CCNAME");
+        if (env_ccname != NULL)
+        {
+            if ((ret = krb5_cc_resolve(ctx, env_ccname, &ccache)) != 0)
+                goto error;
+        }
+        else
+        {
+            if ((ret = krb5_cc_default(ctx, &ccache)) != 0)
+                goto error;
+        }
     }
     else
     {
