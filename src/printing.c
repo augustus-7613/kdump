@@ -95,6 +95,7 @@ static void print_kv_bytes(const int level, const char *label, const unsigned ch
 {
     print_indent(level);
     printf("%s: ", label);
+    if (value_len == 0) printf("(nil)");
     unsigned int i = 0;
     for (i = 0; i < value_len; i++)
     {
@@ -249,7 +250,7 @@ void print_krb5_cred(const krb5_context ctx, const krb5_creds* creds, const krb5
     }
     krb5_free_unparsed_name(ctx, client);
     krb5_free_unparsed_name(ctx, server);
-    printf("========================================\n\n");
+    printf("========================================\n");
 
     if (args.verbose & PRINT_VERBOSE) print_kv_int(0, "Magic", creds->magic);
     print_kv_int(0, "IsSkey", creds->is_skey);
