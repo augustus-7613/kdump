@@ -2,7 +2,6 @@
 
 Tool to dump info from Kerberos Tickets.
 
-
 ## Usage
 
 ```bash
@@ -12,4 +11,18 @@ Usage: kdump [-h] [-c] [-v] [-H]
 	-c specifies credential cache
 	-v verbose
 	-H prints encrypted part of TGS in hashcat format
+```
+
+## Build
+```
+mkdir build
+cd build
+cmake ..
+make
+```
+
+## Install
+Available on [AUR](https://aur.archlinux.org/packages/kdump)
+```
+yay -S kdump
 ```
