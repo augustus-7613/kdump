@@ -91,7 +91,7 @@ int main(int argc, char** argv)
 
     if ((ret = krb5_cc_start_seq_get(ctx, ccache, &cursor)) != 0) goto error;
 
-    if (args.verbose) krb5_cc_next_cred(ctx, ccache, &cursor, &creds); // skips the first "fake" entry
+    if (!args.verbose) krb5_cc_next_cred(ctx, ccache, &cursor, &creds); // skips the first "fake" entry
     while (krb5_cc_next_cred(ctx, ccache, &cursor, &creds) == 0)
     {
         if (creds.ticket.data == NULL || creds.ticket.length == 0) continue;
