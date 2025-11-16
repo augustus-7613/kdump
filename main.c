@@ -134,10 +134,7 @@ int main(int argc, char** argv)
             {
                 if (ticket != NULL && krb5_c_string_to_key(ctx, ticket->enc_part.enctype, &pwd, &salt, &service_key) == 0)
                 {
-                    if (krb5_decrypt_tkt_part(ctx, &service_key, ticket) != 0)
-                    {
-                        fprintf(stderr, "%s: failed to decrypt with password\n", base);
-                    }
+                    if (krb5_decrypt_tkt_part(ctx, &service_key, ticket) != 0) fprintf(stderr, "%s: failed to decrypt with password\n", base);
                 }
                 krb5_free_data_contents(ctx, &salt);
             }
