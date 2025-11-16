@@ -4,7 +4,7 @@
 
 void usage(const char* progname)
 {
-    fprintf(stderr, "Usage: %s [-h] [-c] [-v] [-m] [-H]\n", progname);
+    fprintf(stderr, "Usage: %s [-h] [-c] [-v] [-m] [-p] [-n] [-H]\n", progname);
     fprintf(stderr, "\t-h Help menu\n");
     fprintf(stderr, "\t-c Specifies credential cache\n");
     fprintf(stderr, "\t-v Verbose\n");
