@@ -53,6 +53,11 @@ int main(int argc, char** argv)
                 break;
         }
     }
+    if (args.password != NULL && args.ntlm != NULL)
+    {
+        fprintf(stderr, "%s: -p (password) and -n (NTLM) cannot be used together.\n", base);
+        exit(EXIT_FAILURE);
+    }
 
     if ((ret = krb5_init_context(&ctx)) != 0) goto error;
 
