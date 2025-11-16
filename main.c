@@ -130,9 +130,9 @@ int main(int argc, char** argv)
             };
             krb5_data salt = {0};
 
-            if (ticket->enc_part.enctype == ENCTYPE_ARCFOUR_HMAC && krb5_principal2salt(ctx, creds.server, &salt) == 0)
+            if (ticket != NULL && ticket->enc_part.enctype == ENCTYPE_ARCFOUR_HMAC && krb5_principal2salt(ctx, creds.server, &salt) == 0)
             {
-                if (ticket != NULL && krb5_c_string_to_key(ctx, ticket->enc_part.enctype, &pwd, &salt, &service_key) == 0)
+                if (krb5_c_string_to_key(ctx, ticket->enc_part.enctype, &pwd, &salt, &service_key) == 0)
                 {
                     if (krb5_decrypt_tkt_part(ctx, &service_key, ticket) != 0) fprintf(stderr, "%s: failed to decrypt with password\n", base);
                 }

@@ -59,7 +59,7 @@ static void print_kv_int(const int level, const char *label, const long value)
         else if (value == ENCTYPE_ARCFOUR_HMAC)             printf("%s: %ld (arcfour-hmac)\n", label, value);
         else printf("%s: %ld (unknown)\n", label, value);
     }
-    else if (strcasecmp(label, "ticketflags") == 0)
+    else if (strcasecmp(label, "ticketflags") == 0 || strcasecmp(label, "flags") == 0)
     {
         if (value == 0)
         {
