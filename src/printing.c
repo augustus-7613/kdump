@@ -54,29 +54,105 @@ static void print_kv_int(const int level, const char *label, const long value)
     print_indent(level);
     if (strcasecmp(label, "enctype") == 0)
     {
-        if (value == ENCTYPE_AES128_CTS_HMAC_SHA1_96) printf("%s: %ld (aes128-cts-hmac-sha1-96)\n", label, value);
-        else if (value == ENCTYPE_AES256_CTS_HMAC_SHA1_96) printf("%s: %ld (aes256-cts-hmac-sha1-96)\n", label, value);
-        else if (value == ENCTYPE_ARCFOUR_HMAC) printf("%s: %ld (arcfour-hmac)\n", label, value);
+        if (value == ENCTYPE_AES128_CTS_HMAC_SHA1_96)       printf("%s: %ld (aes128-cts-hmac-sha1-96)\n", label, value);
+        else if (value == ENCTYPE_AES256_CTS_HMAC_SHA1_96)  printf("%s: %ld (aes256-cts-hmac-sha1-96)\n", label, value);
+        else if (value == ENCTYPE_ARCFOUR_HMAC)             printf("%s: %ld (arcfour-hmac)\n", label, value);
         else printf("%s: %ld (unknown)\n", label, value);
     }
     else if (strcasecmp(label, "ticketflags") == 0)
     {
+        if (value == 0)
+        {
+            printf("%s: %ld\n", label, value);
+            return;
+        }
         printf("%s: %ld (", label, value);
-        if (value & TKT_FLG_FORWARDABLE) printf(" TKT_FLG_FORWARDABLE ");
-        if (value & TKT_FLG_FORWARDED) printf(" TKT_FLG_FORWARDED ");
-        if (value & TKT_FLG_PROXIABLE) printf(" TKT_FLG_PROXIABLE ");
-        if (value & TKT_FLG_PROXY) printf(" TKT_FLG_PROXY ");
-        if (value & TKT_FLG_MAY_POSTDATE) printf(" TKT_FLG_MAY_POSTDATE ");
-        if (value & TKT_FLG_POSTDATED) printf(" TKT_FLG_POSTDATED ");
-        if (value & TKT_FLG_INVALID) printf(" TKT_FLG_INVALID ");
-        if (value & TKT_FLG_RENEWABLE) printf(" TKT_FLG_RENEWABLE ");
-        if (value & TKT_FLG_INITIAL) printf(" TKT_FLG_INITIAL ");
-        if (value & TKT_FLG_HW_AUTH) printf(" TKT_FLG_HW_AUTH ");
-        if (value & TKT_FLG_PRE_AUTH) printf(" TKT_FLG_PRE_AUTH ");
+        if (value & TKT_FLG_FORWARDABLE)            printf(" TKT_FLG_FORWARDABLE ");
+        if (value & TKT_FLG_FORWARDED)              printf(" TKT_FLG_FORWARDED ");
+        if (value & TKT_FLG_PROXIABLE)              printf(" TKT_FLG_PROXIABLE ");
+        if (value & TKT_FLG_PROXY)                  printf(" TKT_FLG_PROXY ");
+        if (value & TKT_FLG_MAY_POSTDATE)           printf(" TKT_FLG_MAY_POSTDATE ");
+        if (value & TKT_FLG_POSTDATED)              printf(" TKT_FLG_POSTDATED ");
+        if (value & TKT_FLG_INVALID)                printf(" TKT_FLG_INVALID ");
+        if (value & TKT_FLG_RENEWABLE)              printf(" TKT_FLG_RENEWABLE ");
+        if (value & TKT_FLG_INITIAL)                printf(" TKT_FLG_INITIAL ");
+        if (value & TKT_FLG_HW_AUTH)                printf(" TKT_FLG_HW_AUTH ");
+        if (value & TKT_FLG_PRE_AUTH)               printf(" TKT_FLG_PRE_AUTH ");
         if (value & TKT_FLG_TRANSIT_POLICY_CHECKED) printf(" TKT_FLG_TRANSIT_POLICY_CHECKED ");
-        if (value & TKT_FLG_OK_AS_DELEGATE) printf(" TKT_FLG_OK_AS_DELEGATE ");
-        if (value & TKT_FLG_ANONYMOUS) printf(" TKT_FLG_ANONYMOUS ");
-        putchar(')');
+        if (value & TKT_FLG_OK_AS_DELEGATE)         printf(" TKT_FLG_OK_AS_DELEGATE ");
+        if (value & TKT_FLG_ANONYMOUS)              printf(" TKT_FLG_ANONYMOUS ");
+        printf(")\n");
+    }
+    else if (strcasecmp(label, "magic") == 0 && args.magic)
+    {
+        if (value == 0)
+        {
+            printf("%s: %ld\n", label, value);
+            return;
+        }
+        printf("%s: %ld (", label, value);
+        if (value & KV5M_NONE)                 printf(" KV5M_NONE ");
+        if (value & KV5M_PRINCIPAL)            printf(" KV5M_PRINCIPAL ");
+        if (value & KV5M_DATA)                 printf(" KV5M_DATA ");
+        if (value & KV5M_KEYBLOCK)             printf(" KV5M_KEYBLOCK ");
+        if (value & KV5M_CHECKSUM)             printf(" KV5M_CHECKSUM ");
+        if (value & KV5M_ENCRYPT_BLOCK)        printf(" KV5M_ENCRYPT_BLOCK ");
+        if (value & KV5M_ENC_DATA)             printf(" KV5M_ENC_DATA ");
+        if (value & KV5M_CRYPTOSYSTEM_ENTRY)   printf(" KV5M_CRYPTOSYSTEM_ENTRY ");
+        if (value & KV5M_CS_TABLE_ENTRY)       printf(" KV5M_CS_TABLE_ENTRY ");
+        if (value & KV5M_CHECKSUM_ENTRY)       printf(" KV5M_CHECKSUM_ENTRY ");
+        if (value & KV5M_AUTHDATA)             printf(" KV5M_AUTHDATA ");
+        if (value & KV5M_TRANSITED)            printf(" KV5M_TRANSITED ");
+        if (value & KV5M_ENC_TKT_PART)         printf(" KV5M_ENC_TKT_PART ");
+        if (value & KV5M_TICKET)               printf(" KV5M_TICKET ");
+        if (value & KV5M_AUTHENTICATOR)        printf(" KV5M_AUTHENTICATOR ");
+        if (value & KV5M_TKT_AUTHENT)          printf(" KV5M_TKT_AUTHENT ");
+        if (value & KV5M_CREDS)                printf(" KV5M_CREDS ");
+        if (value & KV5M_LAST_REQ_ENTRY)       printf(" KV5M_LAST_REQ_ENTRY ");
+        if (value & KV5M_PA_DATA)              printf(" KV5M_PA_DATA ");
+        if (value & KV5M_KDC_REQ)              printf(" KV5M_KDC_REQ ");
+        if (value & KV5M_ENC_KDC_REP_PART)     printf(" KV5M_ENC_KDC_REP_PART ");
+        if (value & KV5M_KDC_REP)              printf(" KV5M_KDC_REP ");
+        if (value & KV5M_ERROR)                printf(" KV5M_ERROR ");
+        if (value & KV5M_AP_REQ)               printf(" KV5M_AP_REQ ");
+        if (value & KV5M_AP_REP)               printf(" KV5M_AP_REP ");
+        if (value & KV5M_AP_REP_ENC_PART)      printf(" KV5M_AP_REP_ENC_PART ");
+        if (value & KV5M_RESPONSE)             printf(" KV5M_RESPONSE ");
+        if (value & KV5M_SAFE)                 printf(" KV5M_SAFE ");
+        if (value & KV5M_PRIV)                 printf(" KV5M_PRIV ");
+        if (value & KV5M_PRIV_ENC_PART)        printf(" KV5M_PRIV_ENC_PART ");
+        if (value & KV5M_CRED)                 printf(" KV5M_CRED ");
+        if (value & KV5M_CRED_INFO)            printf(" KV5M_CRED_INFO ");
+        if (value & KV5M_CRED_ENC_PART)        printf(" KV5M_CRED_ENC_PART ");
+        if (value & KV5M_PWD_DATA)             printf(" KV5M_PWD_DATA ");
+        if (value & KV5M_ADDRESS)              printf(" KV5M_ADDRESS ");
+        if (value & KV5M_KEYTAB_ENTRY)         printf(" KV5M_KEYTAB_ENTRY ");
+        if (value & KV5M_CONTEXT)              printf(" KV5M_CONTEXT ");
+        if (value & KV5M_OS_CONTEXT)           printf(" KV5M_OS_CONTEXT ");
+        if (value & KV5M_ALT_METHOD)           printf(" KV5M_ALT_METHOD ");
+        if (value & KV5M_ETYPE_INFO_ENTRY)     printf(" KV5M_ETYPE_INFO_ENTRY ");
+        if (value & KV5M_DB_CONTEXT)           printf(" KV5M_DB_CONTEXT ");
+        if (value & KV5M_AUTH_CONTEXT)         printf(" KV5M_AUTH_CONTEXT ");
+        if (value & KV5M_KEYTAB)               printf(" KV5M_KEYTAB ");
+        if (value & KV5M_RCACHE)               printf(" KV5M_RCACHE ");
+        if (value & KV5M_CCACHE)               printf(" KV5M_CCACHE ");
+        if (value & KV5M_PREAUTH_OPS)          printf(" KV5M_PREAUTH_OPS ");
+        if (value & KV5M_SAM_CHALLENGE)        printf(" KV5M_SAM_CHALLENGE ");
+        if (value & KV5M_SAM_CHALLENGE_2)      printf(" KV5M_SAM_CHALLENGE_2 ");
+        if (value & KV5M_SAM_KEY)              printf(" KV5M_SAM_KEY ");
+        if (value & KV5M_ENC_SAM_RESPONSE_ENC) printf(" KV5M_ENC_SAM_RESPONSE_ENC ");
+        if (value & KV5M_ENC_SAM_RESPONSE_ENC_2) printf(" KV5M_ENC_SAM_RESPONSE_ENC_2 ");
+        if (value & KV5M_SAM_RESPONSE)         printf(" KV5M_SAM_RESPONSE ");
+        if (value & KV5M_SAM_RESPONSE_2)       printf(" KV5M_SAM_RESPONSE_2 ");
+        if (value & KV5M_PREDICTED_SAM_RESPONSE) printf(" KV5M_PREDICTED_SAM_RESPONSE ");
+        if (value & KV5M_PASSWD_PHRASE_ELEMENT) printf(" KV5M_PASSWD_PHRASE_ELEMENT ");
+        if (value & KV5M_GSS_OID)              printf(" KV5M_GSS_OID ");
+        if (value & KV5M_GSS_QUEUE)            printf(" KV5M_GSS_QUEUE ");
+        if (value & KV5M_FAST_ARMORED_REQ)     printf(" KV5M_FAST_ARMORED_REQ ");
+        if (value & KV5M_FAST_REQ)             printf(" KV5M_FAST_REQ ");
+        if (value & KV5M_FAST_RESPONSE)        printf(" KV5M_FAST_RESPONSE ");
+        if (value & KV5M_AUTHDATA_CONTEXT)     printf(" KV5M_AUTHDATA_CONTEXT ");
+        printf(")\n");
     }
     else
         printf("%s: %ld\n", label, value);

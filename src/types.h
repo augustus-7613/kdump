@@ -9,8 +9,10 @@ typedef enum
 typedef struct
 {
     uint8_t hashcat;
-    char* ccache;
+    uint8_t magic;
     uint8_t verbose;
+    char* ccache;
+    char* password;
 } args_t;
 
 extern args_t args;

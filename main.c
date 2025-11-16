@@ -23,7 +23,7 @@ int main(int argc, char** argv)
     int opt = 0;
     const char* base = basename(argv[0]);
 
-    while ((opt = getopt(argc, argv, "Hc:vh")) != -1)
+    while ((opt = getopt(argc, argv, "Hc:vhp:m")) != -1)
     {
         switch (opt)
         {
@@ -38,6 +38,12 @@ int main(int argc, char** argv)
                 break;
             case 'h':
                 usage(base);
+                break;
+            case 'p':
+                args.password = optarg;
+                break;
+            case 'm':
+                args.magic = 1;
                 break;
             default:
                 break;
