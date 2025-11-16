@@ -6,7 +6,7 @@ Tool to dump info from Kerberos Tickets.
 
 ```bash
 $ kdump -h
-Usage: kdump [-h] [-c] [-v] [-m] [-H]
+Usage: kdump [-h] [-c] [-v] [-m] [-p] [-n] [-H]
 	-h Help menu
 	-c Specifies credential cache
 	-v Verbose
