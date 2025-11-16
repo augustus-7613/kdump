@@ -18,12 +18,13 @@ int main(int argc, char** argv)
     krb5_cc_cursor cursor = {0};
     krb5_creds creds = {0};
     krb5_error_code ret = {0};
+    krb5_keyblock service_key = {0};
     krb5_ticket *ticket = NULL;
     const char *msg = NULL;
     int opt = 0;
     const char* base = basename(argv[0]);
 
-    while ((opt = getopt(argc, argv, "Hc:vhp:m")) != -1)
+    while ((opt = getopt(argc, argv, "Hc:vhp:mn:")) != -1)
     {
         switch (opt)
         {
@@ -44,6 +45,9 @@ int main(int argc, char** argv)
                 break;
             case 'm':
                 args.magic = 1;
+                break;
+            case 'n':
+                args.ntlm = optarg;
                 break;
             default:
                 break;
@@ -93,6 +97,46 @@ int main(int argc, char** argv)
             fprintf(stderr, "%s: %s\n", base, msg);
             krb5_free_error_message(ctx, msg);
             ticket = NULL;
+        }
+
+        if (args.ntlm)
+        {
+            unsigned char hash[16] = {0};
+            if (hex2bytes(args.ntlm, hash, 16) != 0)
+            {
+                fprintf(stderr, "%s: invalid NTLM hash\n", base);
+                continue;
+            }
+            krb5_keyblock key =
+            {
+                .enctype = ENCTYPE_ARCFOUR_HMAC,
+                .length = 16,
+                .contents = hash
+            };
+            if (krb5_decrypt_tkt_part(ctx, &key, ticket) != 0) fprintf(stderr, "%s: failed to decrypt with NTLM hash\n", base);
+        }
+
+        if (args.password)
+        {
+            krb5_data pwd =
+            {
+                .data = args.password,
+                .length = strlen(args.password)
+            };
+            krb5_data salt = {0};
+
+            if (ticket->enc_part.enctype == ENCTYPE_ARCFOUR_HMAC && krb5_principal2salt(ctx, creds.server, &salt) == 0)
+            {
+                if (ticket != NULL && krb5_c_string_to_key(ctx, ticket->enc_part.enctype, &pwd, &salt, &service_key) == 0)
+                {
+                    if (krb5_decrypt_tkt_part(ctx, &service_key, ticket) != 0)
+                    {
+                        fprintf(stderr, "%s: failed to decrypt with password\n", base);
+                    }
+                }
+                krb5_free_data_contents(ctx, &salt);
+            }
+            krb5_free_keyblock_contents(ctx, &service_key);
         }
 
         print_krb5_cred(ctx, &creds, ticket);

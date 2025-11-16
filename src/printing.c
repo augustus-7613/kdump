@@ -267,29 +267,35 @@ void print_krb5_ticket(const int level, const krb5_ticket* tkt)
     if (args.verbose & PRINT_VERBOSE) print_kv_int(level+4, "Length", tkt->enc_part2->client->realm.length);
     print_kv_str(level+4, "Data", tkt->enc_part2->client->realm.data, tkt->enc_part2->client->realm.length);
 
-    krb5_authdata** authdata = NULL;
-    for (i = 0, authdata = tkt->enc_part2->authorization_data; *authdata != NULL; authdata++, i++) {
-        print_indent(level+2); printf("Authorization Data[%d]: \n", i);
-        if (args.verbose & PRINT_VERBOSE) print_kv_int(level+3, "Magic", (*authdata)->magic);
-        if (args.verbose & PRINT_VERBOSE) print_kv_int(level+3, "Length", (*authdata)->length);
-        print_kv_int(level+3, "AD_type", (*authdata)->ad_type);
-        print_kv_str(level+3, "Contents", (*authdata)->contents, (*authdata)->length);
+    if (tkt->enc_part2->authorization_data != NULL)
+    {
+        krb5_authdata** authdata = NULL;
+        for (i = 0, authdata = tkt->enc_part2->authorization_data; *authdata != NULL; authdata++, i++) {
+            print_indent(level+2); printf("Authorization Data[%d]: \n", i);
+            if (args.verbose & PRINT_VERBOSE) print_kv_int(level+3, "Magic", (*authdata)->magic);
+            if (args.verbose & PRINT_VERBOSE) print_kv_int(level+3, "Length", (*authdata)->length);
+            print_kv_int(level+3, "AD_type", (*authdata)->ad_type);
+            print_kv_bytes(level+3, "Contents", (*authdata)->contents, (*authdata)->length);
+        }
     }
 
-    krb5_address** addresses = NULL;
-    for (i = 0, addresses = tkt->enc_part2->caddrs; *addresses != NULL; addresses++, i++) {
-        print_indent(level+2); printf("CAddrs[%d]: \n", i);
-        if (args.verbose & PRINT_VERBOSE) print_kv_int(level+3, "Magic", (*addresses)->magic);
-        if (args.verbose & PRINT_VERBOSE) print_kv_int(level+3, "Length", (*addresses)->length);
-        print_kv_int(level+3, "AddrType", (*addresses)->addrtype);
-        print_kv_str(level+3, "Contents", (*addresses)->contents, (*addresses)->length);
+    if (tkt->enc_part2->caddrs != NULL)
+    {
+        krb5_address** addresses = NULL;
+        for (i = 0, addresses = tkt->enc_part2->caddrs; *addresses != NULL; addresses++, i++) {
+            print_indent(level+2); printf("CAddrs[%d]: \n", i);
+            if (args.verbose & PRINT_VERBOSE) print_kv_int(level+3, "Magic", (*addresses)->magic);
+            if (args.verbose & PRINT_VERBOSE) print_kv_int(level+3, "Length", (*addresses)->length);
+            print_kv_int(level+3, "AddrType", (*addresses)->addrtype);
+            print_kv_bytes(level+3, "Contents", (*addresses)->contents, (*addresses)->length);
+        }
     }
 
     print_indent(level+2); printf("Session: \n");
     if (args.verbose & PRINT_VERBOSE) print_kv_int(level+3, "Magic", tkt->enc_part2->session->magic);
     if (args.verbose & PRINT_VERBOSE) print_kv_int(level+3, "Length", tkt->enc_part2->session->length);
     print_kv_int(level+3, "Enctype", tkt->enc_part2->session->enctype);
-    print_kv_str(level+3, "Contents", tkt->enc_part2->session->contents, tkt->enc_part2->session->length);
+    print_kv_bytes(level+3, "Contents", tkt->enc_part2->session->contents, tkt->enc_part2->session->length);
 
     print_indent(level+2); printf("Times: \n");
     print_kv_time(level+3, "AuthTime", tkt->enc_part2->times.authtime);
@@ -301,7 +307,7 @@ void print_krb5_ticket(const int level, const krb5_ticket* tkt)
     if (args.verbose & PRINT_VERBOSE) print_kv_int(level+3, "Magic", tkt->enc_part2->transited.magic);
     print_kv_int(level+3, "TrType", tkt->enc_part2->transited.tr_type);
     print_kv_int(level+3, "TrType", tkt->enc_part2->transited.tr_contents.length);
-    print_kv_str(level+3, "Contents", tkt->enc_part2->transited.tr_contents.data, tkt->enc_part2->transited.tr_contents.length);
+    print_kv_bytes(level+3, "Contents", tkt->enc_part2->transited.tr_contents.data, tkt->enc_part2->transited.tr_contents.length);
 }
 
 void print_krb5_cred(const krb5_context ctx, const krb5_creds* creds, const krb5_ticket* tkt)
